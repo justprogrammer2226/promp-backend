@@ -40,5 +40,19 @@ namespace Promp.Controllers
             await PromService.RemoveToken(token);
             return Ok();
         }
+
+        [HttpGet("products/list")]
+        public async Task<IActionResult> GetProducts()
+        {
+            var products = await PromService.GetProducts();
+            return Ok(products);
+        }
+
+        [HttpPost("products/edit")]
+        public async Task<IActionResult> EditProducts(IEnumerable<ProductEditModel> products)
+        {
+            await PromService.EditProducts(products);
+            return Ok();
+        }
     }
 }
