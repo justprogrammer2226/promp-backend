@@ -9,13 +9,15 @@ namespace Promp.Models.Prom.Search
     {
         public string SearchText { get; set; }
         public SearchProductsBy SearchBy { get; set; }
+        public ProductAvailabilityBy AvailabilityBy { get; set; }
         public IEnumerable<string> SelectedPromTokens { get; set; }
 
-        public SearchProductsModel(IEnumerable<string> selectedPromTokens, string searchText, SearchProductsBy searchBy)
+        public SearchProductsModel(IEnumerable<string> selectedPromTokens, string searchText, SearchProductsBy searchBy, ProductAvailabilityBy availabilityBy)
         {
             SelectedPromTokens = selectedPromTokens;
             SearchText = searchText;
             SearchBy = searchBy;
+            AvailabilityBy = availabilityBy;
         }
     }
 
@@ -25,5 +27,11 @@ namespace Promp.Models.Prom.Search
         Description,
         Sku,
         Keywords,
+    }
+
+    public enum ProductAvailabilityBy
+    {
+        Name,
+        Sku
     }
 }

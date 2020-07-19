@@ -43,9 +43,9 @@ namespace Promp.Controllers
         }
 
         [HttpGet("products/list")]
-        public async Task<IActionResult> GetProducts([FromQuery] List<string> selectedPromTokens, [FromQuery] string searchText, [FromQuery] SearchProductsBy searchBy)
+        public async Task<IActionResult> GetProducts([FromQuery] List<string> selectedPromTokens, [FromQuery] string searchText, [FromQuery] SearchProductsBy searchBy, [FromQuery] ProductAvailabilityBy availabilityBy)
         {
-            var products = await PromService.GetProducts(new SearchProductsModel(selectedPromTokens, searchText, searchBy));
+            var products = await PromService.GetProducts(new SearchProductsModel(selectedPromTokens, searchText, searchBy, availabilityBy));
             return Ok(products);
         }
 

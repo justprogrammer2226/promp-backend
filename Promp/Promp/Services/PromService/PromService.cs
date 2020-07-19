@@ -60,10 +60,6 @@ namespace Promp.Services.PromService
         public async Task<IEnumerable<ProductModel>> GetProducts(SearchProductsModel searchModel)
         {
             var products = new List<ProductModel>();
-            //if (!tokens.Any())
-            //{
-            //    tokens = (await GetAllTokens()).Select(_ => _.Token);
-            //}
             HttpClient httpClient = HttpClientFactory.CreateClient("prom");
             foreach (var token in searchModel.SelectedPromTokens)
             {
@@ -78,7 +74,28 @@ namespace Promp.Services.PromService
                 }
                 products.AddRange(deserializedProducts);
             }
-            return products.FilterProducts(searchModel);
+            var filteredProducts = products.FilterProducts(searchModel);
+            if (searchModel.AvailabilityBy == ProductAvailabilityBy.Name)
+            {
+                foreach (var filteredProduct in filteredProducts)
+                {
+                    var groupedByName = products.GroupBy(_ => _.UsedToken, (key, group) => new { Key = key, Count = group.Count(_ => _.Name == filteredProduct.Name) });
+                    filteredProduct.AvailableInShops = groupedByName.Count(_ => _.Count > 0);
+                }
+            }
+            else if (searchModel.AvailabilityBy == ProductAvailabilityBy.Sku)
+            {
+                foreach (var filteredProduct in filteredProducts)
+                {
+                    var groupedBySku = products.GroupBy(_ => _.UsedToken, (key, group) => new { Key = key, Count = group.Count(_ => _.Sku == filteredProduct.Sku) });
+                    filteredProduct.AvailableInShops = groupedBySku.Count(_ => _.Count > 0);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Incorrect value of 'AvailabilityBy' field.");
+            }
+            return filteredProducts;
         }
 
         public async Task EditProducts(IEnumerable<ProductEditModel> products)
