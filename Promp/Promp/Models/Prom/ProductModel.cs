@@ -25,5 +25,6 @@ namespace Promp.Prom.Models
         public IEnumerable<ImageModel> Images { get; set; }
         public string Status { get; set; }
         public string UsedToken { get; set; }
+        public int AvailableInShops { get; set; }
     }
 }
