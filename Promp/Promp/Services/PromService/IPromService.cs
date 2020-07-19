@@ -11,7 +11,7 @@ namespace Promp.Services.PromService
         Task<IEnumerable<PromApiTokenModel>> GetAllTokens();
         Task<PromApiTokenModel> AddToken(PromApiTokenModel token);
         Task RemoveToken(string token);
-        Task<IEnumerable<ProductModel>> GetProducts();
+        Task<IEnumerable<ProductModel>> GetProducts(IEnumerable<string> tokens);
         Task EditProducts(IEnumerable<ProductEditModel> products);
     }
 }

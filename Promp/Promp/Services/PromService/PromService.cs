@@ -54,21 +54,24 @@ namespace Promp.Services.PromService
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<IEnumerable<ProductModel>> GetProducts()
+        public async Task<IEnumerable<ProductModel>> GetProducts(IEnumerable<string> tokens)
         {
             var products = new List<ProductModel>();
-            var tokens = await GetAllTokens();
+            //if (!tokens.Any())
+            //{
+            //    tokens = (await GetAllTokens()).Select(_ => _.Token);
+            //}
             HttpClient httpClient = HttpClientFactory.CreateClient("prom");
             foreach (var token in tokens)
             {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Token);
+                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var response = await httpClient.GetAsync("products/list");
                 string content = await response.Content.ReadAsStringAsync();
                 var deserializedProductList = JsonConvert.DeserializeObject<ProductListModel>(content);
                 var deserializedProducts = deserializedProductList.Products;
                 foreach (var deserializedProduct in deserializedProducts)
                 {
-                    deserializedProduct.UsedToken = token.Token;
+                    deserializedProduct.UsedToken = token;
                 }
                 products.AddRange(deserializedProducts);
             }
