@@ -1,6 +1,9 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Promp.Extensions;
+using Promp.Models.Prom.Search;
 using Promp.Prom.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
@@ -54,7 +57,7 @@ namespace Promp.Services.PromService
             return response.IsSuccessStatusCode;
         }
 
-        public async Task<IEnumerable<ProductModel>> GetProducts(IEnumerable<string> tokens)
+        public async Task<IEnumerable<ProductModel>> GetProducts(SearchProductsModel searchModel)
         {
             var products = new List<ProductModel>();
             //if (!tokens.Any())
@@ -62,7 +65,7 @@ namespace Promp.Services.PromService
             //    tokens = (await GetAllTokens()).Select(_ => _.Token);
             //}
             HttpClient httpClient = HttpClientFactory.CreateClient("prom");
-            foreach (var token in tokens)
+            foreach (var token in searchModel.SelectedPromTokens)
             {
                 httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
                 var response = await httpClient.GetAsync("products/list");
@@ -75,7 +78,7 @@ namespace Promp.Services.PromService
                 }
                 products.AddRange(deserializedProducts);
             }
-            return products;
+            return products.FilterProducts(searchModel);
         }
 
         public async Task EditProducts(IEnumerable<ProductEditModel> products)

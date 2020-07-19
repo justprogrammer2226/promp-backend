@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Promp.Models.Prom.Search;
 using Promp.Prom.Models;
 using Promp.Services.PromService;
 
@@ -42,9 +43,9 @@ namespace Promp.Controllers
         }
 
         [HttpGet("products/list")]
-        public async Task<IActionResult> GetProducts([FromQuery] List<string> tokens)
+        public async Task<IActionResult> GetProducts([FromQuery] List<string> selectedPromTokens, [FromQuery] string searchText, [FromQuery] SearchProductsBy searchBy)
         {
-            var products = await PromService.GetProducts(tokens);
+            var products = await PromService.GetProducts(new SearchProductsModel(selectedPromTokens, searchText, searchBy));
             return Ok(products);
         }
 
