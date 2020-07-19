@@ -42,9 +42,9 @@ namespace Promp.Controllers
         }
 
         [HttpGet("products/list")]
-        public async Task<IActionResult> GetProducts()
+        public async Task<IActionResult> GetProducts([FromQuery] List<string> tokens)
         {
-            var products = await PromService.GetProducts();
+            var products = await PromService.GetProducts(tokens);
             return Ok(products);
         }
 
