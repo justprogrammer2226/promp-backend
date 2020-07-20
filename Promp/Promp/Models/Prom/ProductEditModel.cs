@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace Promp.Prom.Models
 {
@@ -6,7 +7,8 @@ namespace Promp.Prom.Models
     {
         public long Id { get; set; }
         public string Presence { get; set; }
-        public bool Presence_sure { get; set; }
+        [JsonProperty(PropertyName = "Presence_sure")]
+        public bool PresenceSure { get; set; }
         public double Price { get; set; }
         public string Status { get; set; }
         public List<PriceModel> Prices { get; set; }

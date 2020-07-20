@@ -1,10 +1,14 @@
-﻿namespace Promp.Prom.Models
+﻿using Newtonsoft.Json;
+
+namespace Promp.Prom.Models
 {
     public class DiscountModel
     {
         public double Value { get; set; }
         public string Type { get; set; }
-        public string Date_start { get; set; }
-        public string Date_end { get; set; }
+        [JsonProperty(PropertyName = "Date_start")]
+        public string DateStart { get; set; }
+        [JsonProperty(PropertyName = "Date_end")]
+        public string DateEnd { get; set; }
     }
 }

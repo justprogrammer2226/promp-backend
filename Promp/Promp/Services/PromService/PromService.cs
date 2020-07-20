@@ -32,14 +32,14 @@ namespace Promp.Services.PromService
         {
             foreach (var token in PromApiTokens)
             {
-                token.isValid = await IsValidToken(token.Token);
+                token.IsValid = await IsValidToken(token.Token);
             }
             return PromApiTokens;
         }
 
         public async Task<PromApiTokenModel> AddToken(PromApiTokenModel token)
         {
-            token.isValid = await IsValidToken(token.Token);
+            token.IsValid = await IsValidToken(token.Token);
             PromApiTokens.Add(token);
             return token;
         }
