@@ -6,6 +6,6 @@ namespace Promp.Prom.Models
     {
         public double Price { get; set; }
         [JsonProperty(PropertyName = "Minimum_order_quantity")]
-        public int MinimumOrderQuantity { get; set; }
+        public float MinimumOrderQuantity { get; set; }
     }
 }

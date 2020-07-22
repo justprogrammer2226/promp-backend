@@ -20,7 +20,7 @@ namespace Promp.Prom.Models
         public bool PresenceSure { get; set; }
         public double Price { get; set; }
         [JsonProperty(PropertyName = "Minimum_order_quantity")]
-        public int? MinimumOrderQuantity { get; set; }
+        public float? MinimumOrderQuantity { get; set; }
         public DiscountModel Discount { get; set; }
         public string Currency { get; set; }
         public GroupModel Group { get; set; }
