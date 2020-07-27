@@ -43,6 +43,8 @@ namespace Promp
                 app.UseDeveloperExceptionPage();
             }
 
+            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+
             app.UseHttpsRedirection();
 
             app.UseStaticFiles();
@@ -50,8 +52,6 @@ namespace Promp
             app.UseRouting();
 
             app.UseAuthorization();
-
-            app.UseCors(builder => builder.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
 
             app.UseEndpoints(endpoints =>
             {
