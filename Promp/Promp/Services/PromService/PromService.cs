@@ -1,10 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Promp.Extensions;
 using Promp.Models.Prom.Search;
 using Promp.Prom.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -16,6 +18,7 @@ namespace Promp.Services.PromService
     public class PromService : IPromService
     {
         private readonly IHttpClientFactory HttpClientFactory;
+        private readonly IWebHostEnvironment WebHostEnvironment;
         private List<PromApiTokenModel> PromApiTokens = new List<PromApiTokenModel>() {
             new PromApiTokenModel()
             {
@@ -23,16 +26,18 @@ namespace Promp.Services.PromService
             }
         };
 
-        public PromService(IHttpClientFactory рttpClientFactory)
+        public PromService(IHttpClientFactory httpClientFactory, IWebHostEnvironment webHostEnvironment)
         {
-            HttpClientFactory = рttpClientFactory;
+            HttpClientFactory = httpClientFactory;
+            WebHostEnvironment = webHostEnvironment;
         }
 
         public async Task<IEnumerable<PromApiTokenModel>> GetAllTokens()
         {
             foreach (var token in PromApiTokens)
             {
-                token.IsValid = await IsValidToken(token.Token);
+                token.IsValid = true;
+                //token.IsValid = await IsValidToken(token.Token);
             }
             return PromApiTokens;
         }
@@ -59,21 +64,24 @@ namespace Promp.Services.PromService
 
         public async Task<IEnumerable<ProductModel>> GetProducts(SearchProductsModel searchModel)
         {
-            var products = new List<ProductModel>();
-            HttpClient httpClient = HttpClientFactory.CreateClient("prom");
-            foreach (var token in searchModel.SelectedPromTokens)
-            {
-                httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
-                var response = await httpClient.GetAsync("products/list");
-                string content = await response.Content.ReadAsStringAsync();
-                var deserializedProductList = JsonConvert.DeserializeObject<ProductListModel>(content);
-                var deserializedProducts = deserializedProductList.Products;
-                foreach (var deserializedProduct in deserializedProducts)
-                {
-                    deserializedProduct.UsedToken = token;
-                }
-                products.AddRange(deserializedProducts);
-            }
+            //var products = new List<ProductModel>();
+            //HttpClient httpClient = HttpClientFactory.CreateClient("prom");
+            //foreach (var token in searchModel.SelectedPromTokens)
+            //{
+            //    httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            //    var response = await httpClient.GetAsync("products/list");
+            //    string content = await response.Content.ReadAsStringAsync();
+            //    var deserializedProductList = JsonConvert.DeserializeObject<ProductListModel>(content);
+            //    var deserializedProducts = deserializedProductList.Products;
+            //    foreach (var deserializedProduct in deserializedProducts)
+            //    {
+            //        deserializedProduct.UsedToken = token;
+            //    }
+            //    products.AddRange(deserializedProducts);
+            //}
+            var products = JsonConvert.DeserializeObject<IEnumerable<ProductModel>>(File.ReadAllText(Path.Combine(WebHostEnvironment.WebRootPath, "products.json")));
+            products = products.Where(_ => searchModel.SelectedPromTokens.Any(token => token == _.UsedToken));
+
             var filteredProducts = products.FilterProducts(searchModel);
             if (searchModel.AvailabilityBy == ProductAvailabilityBy.Name)
             {
