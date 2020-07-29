@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Promp.Models.Prom.Search;
@@ -12,6 +13,7 @@ namespace Promp.Controllers
 {
     [ApiController]
     [Route("prom")]
+    [Authorize]
     public class PromController : ControllerBase
     {
         private readonly IPromService PromService;
