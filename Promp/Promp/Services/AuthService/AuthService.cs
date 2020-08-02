@@ -23,17 +23,17 @@ namespace Promp.Services.PromService
 {
     public class AuthService : IAuthService
     {
-        private readonly ApplicationContext context;
-        private readonly UserManager<User> userManager;
-        private readonly SignInManager<User> signInManager;
-        private readonly RoleManager<IdentityRole> roleManager;
+        private readonly ApplicationContext Context;
+        private readonly UserManager<User> UserManager;
+        private readonly SignInManager<User> SignInManager;
+        private readonly RoleManager<IdentityRole> RoleManager;
 
         public AuthService(UserManager<User> userManager, SignInManager<User> signInManager, ApplicationContext context, RoleManager<IdentityRole> roleManager)
         {
-            this.userManager = userManager;
-            this.signInManager = signInManager;
-            this.context = context;
-            this.roleManager = roleManager;
+            UserManager = userManager;
+            SignInManager = signInManager;
+            Context = context;
+            RoleManager = roleManager;
         }
 
         public async Task SignUp(SignUpModel model)
@@ -43,24 +43,24 @@ namespace Promp.Services.PromService
                 Email = model.Email,
                 UserName = model.Email
             };
-            var result = await userManager.CreateAsync(user, model.Password);
+            var result = await UserManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
-                user = await userManager.FindByNameAsync(user.UserName);
-                await userManager.AddToRoleAsync(user, "User");
+                user = await UserManager.FindByNameAsync(user.UserName);
+                await UserManager.AddToRoleAsync(user, "User");
                 // Send email for confirmation
             }
         }
 
         public async Task<string> SignIn(SignInModel model)
         {
-            var user = await userManager.FindByEmailAsync(model.Email);
+            var user = await UserManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 throw new Exception($"User with email {model.Email} does not exist.");
             }
 
-            var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+            var result = await SignInManager.CheckPasswordSignInAsync(user, model.Password, false);
             if (result.Succeeded)
             {
                 return await GenerateJwtTokenAsync(user);
@@ -77,7 +77,7 @@ namespace Promp.Services.PromService
             {
                 new Claim("userId", user.Id),
                 new Claim("email", user.Email),
-                new Claim("role", (await userManager.GetRolesAsync(user))[0])
+                new Claim("role", (await UserManager.GetRolesAsync(user))[0])
             };
             var secretKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("superSecretKey@345"));
             var signinCredentials = new SigningCredentials(secretKey, SecurityAlgorithms.HmacSha256);
