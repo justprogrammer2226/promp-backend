@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Promp.DAL;
 using Promp.DAL.Entities;
+using Promp.Options;
 using Promp.Services.PromService;
 using System;
 using System.Text;
@@ -35,7 +36,8 @@ namespace Promp
 
             services.AddDbContext<ApplicationContext>(options => options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
             services.AddIdentity<User, IdentityRole>()
-                .AddEntityFrameworkStores<ApplicationContext>();
+                .AddEntityFrameworkStores<ApplicationContext>()
+                .AddDefaultTokenProviders();
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -63,8 +65,11 @@ namespace Promp
                 };
             });
 
+            services.Configure<SmtpOptions>(Configuration.GetSection("Smtp"));
+
             services.AddTransient<IPromService, PromService>();
             services.AddTransient<IAuthService, AuthService>();
+            services.AddTransient<IEmailService, EmailService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
