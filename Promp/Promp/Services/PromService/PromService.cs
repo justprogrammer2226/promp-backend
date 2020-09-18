@@ -1,7 +1,11 @@
 ﻿using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Promp.DAL;
+using Promp.DAL.Entities;
 using Promp.Extensions;
+using Promp.Models.Prom;
 using Promp.Models.Prom.Search;
 using Promp.Prom.Models;
 using System;
@@ -17,6 +21,7 @@ namespace Promp.Services.PromService
 {
     public class PromService : IPromService
     {
+        private readonly ApplicationContext ApplicationContext;
         private readonly IHttpClientFactory HttpClientFactory;
         private readonly IWebHostEnvironment WebHostEnvironment;
         private List<PromApiTokenModel> PromApiTokens = new List<PromApiTokenModel>() {
@@ -26,32 +31,67 @@ namespace Promp.Services.PromService
             }
         };
 
-        public PromService(IHttpClientFactory httpClientFactory, IWebHostEnvironment webHostEnvironment)
+        public PromService(IHttpClientFactory httpClientFactory, IWebHostEnvironment webHostEnvironment, ApplicationContext applicationContext)
         {
             HttpClientFactory = httpClientFactory;
             WebHostEnvironment = webHostEnvironment;
+            ApplicationContext = applicationContext;
         }
 
-        public async Task<IEnumerable<PromApiTokenModel>> GetAllTokens()
+        public async Task<IEnumerable<PromApiTokenModel>> GetAllTokens(string userId)
         {
-            foreach (var token in PromApiTokens)
+            var promApiTokens = await ApplicationContext.PromApiTokens.AsNoTracking()
+                .Where(_ => _.UserId == userId)
+                .Select(_ => new PromApiTokenModel() {
+                    Id = _.Id,
+                    Token = _.Token,
+                    ShopName = _.ShopName,
+                    UserId = _.UserId,
+                })
+                .ToListAsync();
+            foreach (var token in promApiTokens)
             {
                 token.IsValid = true;
                 //token.IsValid = await IsValidToken(token.Token);
             }
-            return PromApiTokens;
+            return promApiTokens;
         }
 
-        public async Task<PromApiTokenModel> AddToken(PromApiTokenModel token)
+        public async Task<PromApiTokenModel> SaveToken(PromApiTokenModel token)
         {
-            token.IsValid = await IsValidToken(token.Token);
-            PromApiTokens.Add(token);
+            token.IsValid = true;
+            //token.IsValid = await IsValidToken(token.Token);
+            var existingPromApiToken = ApplicationContext.PromApiTokens.SingleOrDefault(_ => _.Id == token.Id);
+            if (existingPromApiToken == null)
+            {
+                var newPromApiToken = new PromApiToken();
+                newPromApiToken.ShopName = token.ShopName;
+                newPromApiToken.Token = token.Token;
+                newPromApiToken.UserId = token.UserId;
+                await ApplicationContext.PromApiTokens.AddAsync(newPromApiToken);
+                await ApplicationContext.SaveChangesAsync();
+                ApplicationContext.Entry(newPromApiToken).State = EntityState.Detached;
+            }
+            else
+            {
+                var newPromApiToken = new PromApiToken();
+                newPromApiToken.Id = token.Id;
+                newPromApiToken.ShopName = token.ShopName;
+                newPromApiToken.Token = token.Token;
+                newPromApiToken.UserId = token.UserId;
+                ApplicationContext.PromApiTokens.Update(newPromApiToken);
+                await ApplicationContext.SaveChangesAsync();
+                ApplicationContext.Entry(newPromApiToken).State = EntityState.Detached;
+            }
+            // TODO CHECK VALID
             return token;
         }
 
-        public async Task RemoveToken(string token)
+        public async Task RemoveToken(string token, string userId)
         {
-            PromApiTokens = PromApiTokens.Where(_ => _.Token != token).ToList();
+            var existingPromApiToken = ApplicationContext.PromApiTokens.SingleOrDefault(_ => _.Token == token && _.UserId == userId);
+            ApplicationContext.PromApiTokens.Remove(existingPromApiToken);
+            await ApplicationContext.SaveChangesAsync();
         }
 
         private async Task<bool> IsValidToken(string token)

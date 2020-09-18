@@ -1,4 +1,5 @@
-﻿using Promp.Models.Prom.Search;
+﻿using Promp.Models.Prom;
+using Promp.Models.Prom.Search;
 using Promp.Prom.Models;
 using System;
 using System.Collections.Generic;

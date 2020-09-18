@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Promp.Prom.Models
+namespace Promp.Models.Prom
 {
     public class DiscountModel
     {

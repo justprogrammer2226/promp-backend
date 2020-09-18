@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.Collections.Generic;
 
-namespace Promp.Prom.Models
+namespace Promp.Models.Prom
 {
     public class ProductEditModel
     {
