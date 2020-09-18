@@ -49,7 +49,7 @@ namespace Promp.Controllers
             var user = await UserManager.FindByEmailAsync(email);
             var token = HttpUtility.UrlEncode(await UserManager.GeneratePasswordResetTokenAsync(user));
             var resetLink = HttpContext.Request.Headers["Origin"] + "/auth/reset-password/?email=" + email + "&token=" + token;
-            await EmailService.SendRecoveryPasswordMessageAsync(user.Email, user.FirstName + " " + user.LastName, resetLink);
+            await EmailService.SendRecoveryPasswordMessageAsync(user.Email, user.Name, resetLink);
             return Ok();
         }
 
@@ -60,7 +60,7 @@ namespace Promp.Controllers
             var result = await UserManager.ResetPasswordAsync(user, model.Token, model.NewPassword);
             if (result.Succeeded)
             {
-                await EmailService.SendPasswordResetMessageAsync(user.Email, user.FirstName + " " + user.LastName);
+                await EmailService.SendPasswordResetMessageAsync(user.Email, user.Name);
                 return Ok();
             }
             else

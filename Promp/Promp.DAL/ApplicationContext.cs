@@ -9,6 +9,8 @@ namespace Promp.DAL
 {
     public class ApplicationContext : IdentityDbContext<User>
     {
+        public DbSet<PromApiToken> PromApiTokens { get; set; }
+
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
         }
